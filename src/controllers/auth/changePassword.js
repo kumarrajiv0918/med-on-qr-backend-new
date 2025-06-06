@@ -8,8 +8,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const changePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
-
-        // Extract token from Authorization header
         const authHeader = req.headers.authorization;
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return res.status(401).json({
