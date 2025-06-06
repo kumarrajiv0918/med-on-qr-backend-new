@@ -44,7 +44,7 @@ router.post('/upload', authentication, upload.single('file'), async (req, res) =
 
     const modifiedPdfFileName = `modified_${path.basename(finalPdfPath)}`;
     const modifiedPdfPath = `uploads/${modifiedPdfFileName}`;
-    const modifiedFileUrl = `${process.env.BASE_URL}/uploads/${modifiedPdfFileName}`;
+    const modifiedFileUrl = `${process.env.PDF_URL}/uploads/${modifiedPdfFileName}`;
 
     const qrCodeDataUrl = await fileController.generateQRCode(modifiedFileUrl);
     await fileController.embedQRCodeInPdf(finalPdfPath, qrCodeDataUrl, modifiedPdfPath);
