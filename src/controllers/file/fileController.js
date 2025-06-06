@@ -25,8 +25,6 @@ async function imageToPdf(inputPath, outputPath) {
   const pdfBytes = await pdfDoc.save();
   fs.writeFileSync(outputPath, pdfBytes);
 }
-
-// Generate QR Code (Data URL)
 async function generateQRCode(url) {
   return new Promise((resolve, reject) => {
     qr.toDataURL(url, (err, url) => {

@@ -11,7 +11,7 @@ const register = async (req, res) => {
       pinCode,
       address,
       createdBy,
-      status // added this
+      status
     } = req.body;
 
     const existingUser = await Auth.findOne({ email });
@@ -31,7 +31,7 @@ const register = async (req, res) => {
       pinCode,
       address,
       createdBy,
-      status: status || 'enable' 
+      status: status || 'enable'
     });
 
     await user.save();

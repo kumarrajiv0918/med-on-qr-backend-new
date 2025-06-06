@@ -73,7 +73,7 @@ router.get('/files', authentication, async (req, res) => {
 
       const pdfFiles = files.filter(file => file.endsWith('.pdf'));
       const fileDetails = await Promise.all(pdfFiles.map(async (file) => {
-        const fileUrl = `${process.env.BASE_URL || 'http://localhost:3001'}/uploads/${file}`;
+        const fileUrl = `${process.env.PDF_URL}/uploads/${file}`;
         const qrCodeUrl = await fileController.generateQRCode(fileUrl);
         return { fileName: file, fileUrl, qrCodeUrl };
       }));
