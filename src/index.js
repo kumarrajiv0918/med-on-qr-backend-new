@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
 const fileRoutes = require('./routes/file/fileRoutes');
 const authRoutes = require('./routes/auth/authRoutes');
 const connectDB = require('./config/db');
@@ -8,11 +7,11 @@ const registerRoutes = require('./routes/auth/registerRoutes');
 const getAllUsersRoutes = require('./routes/auth/getAllUserRoutes');
 
 const app = express();
-dotenv.config();
+require('dotenv').config();
 
 const PORT = process.env.PORT || 3002;
 const HOST = process.env.HOST || '0.0.0.0';
-const CLIENT_ORIGIN = process.env.BASE_URL || 'http://localhost:3000/'; 
+const CLIENT_ORIGIN = process.env.BASE_URL || 'http://localhost:3000/';
 connectDB();
 
 app.use(cors({
