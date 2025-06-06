@@ -43,7 +43,7 @@ async function embedQRCodeInPdf(inputPdfPath, qrCodeDataUrl, outputPdfPath) {
   const pages = pdfDoc.getPages();
   const lastPage = pages[pages.length - 1];
   const { width } = lastPage.getSize();
-  const qrSize = 50;
+  const qrSize = 100;
 
   lastPage.drawImage(qrImage, {
     x: (width - qrSize) / 2,
