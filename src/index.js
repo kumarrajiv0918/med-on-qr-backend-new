@@ -11,7 +11,7 @@ require('dotenv').config();
 
 const PORT = process.env.PORT || 3002;
 const HOST = process.env.HOST || '0.0.0.0';
-const CLIENT_ORIGIN = process.env.BASE_URL || 'http://localhost:3000/';
+const CLIENT_ORIGIN = process.env.ORIGIN_URL;
 connectDB();
 
 app.use(cors({
