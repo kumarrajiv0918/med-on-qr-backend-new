@@ -4,6 +4,6 @@ const registerController = require('../../controllers/auth/registerController');
 const updateUserController = require('../../controllers/auth/updateUserController');
 const authentication = require('../../middlewares/authentication');
 
-router.post('/register', authentication, registerController.register);
+router.post('/register', registerController.register);
 router.put('/updateUser/:id', authentication, updateUserController.updateUser);
 module.exports = router;

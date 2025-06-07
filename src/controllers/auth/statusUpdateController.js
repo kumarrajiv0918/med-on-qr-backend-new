@@ -1,4 +1,4 @@
-const Auth = require('../../model/authModel');
+const User = require('./../../model/userModel');
 
 const updateUserStatus = async (req, res) => {
   try {
@@ -12,7 +12,7 @@ const updateUserStatus = async (req, res) => {
       });
     }
 
-    const user = await Auth.findByIdAndUpdate(
+    const user = await User.findByIdAndUpdate(
       id,
       {
         status,
