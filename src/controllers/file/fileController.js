@@ -2,20 +2,32 @@ const fs = require('fs');
 const path = require('path');
 const qr = require('qrcode');
 const { PDFDocument } = require('pdf-lib');
-const officeToPdf = require('office-to-pdf');
+const libre = require('libreoffice-convert');
 
-// Convert Office files to PDF
+// Convert Office files to PDF using libreoffice-convert
 async function convertToPdf(inputPath, outputPath) {
-  const fileBuffer = fs.readFileSync(inputPath);
-  const pdfBuffer = await officeToPdf(fileBuffer);
-  fs.writeFileSync(outputPath, pdfBuffer);
+  return new Promise((resolve, reject) => {
+    const ext = '.pdf';
+    const fileBuffer = fs.readFileSync(inputPath);
+
+    libre.convert(fileBuffer, ext, undefined, (err, done) => {
+      if (err) {
+        console.error('convertToPdf error:', err);
+        return reject(err);
+      }
+      fs.writeFileSync(outputPath, done);
+      resolve();
+    });
+  });
 }
 
 // Convert image files to PDF
 async function imageToPdf(inputPath, outputPath) {
   const imageBytes = fs.readFileSync(inputPath);
   const pdfDoc = await PDFDocument.create();
-  const image = path.extname(inputPath).toLowerCase() === '.png'
+  const ext = path.extname(inputPath).toLowerCase();
+
+  const image = ext === '.png'
     ? await pdfDoc.embedPng(imageBytes)
     : await pdfDoc.embedJpg(imageBytes);
 
@@ -26,16 +38,17 @@ async function imageToPdf(inputPath, outputPath) {
   fs.writeFileSync(outputPath, pdfBytes);
 }
 
+// Generate QR code as data URL
 async function generateQRCode(url) {
   return new Promise((resolve, reject) => {
-    qr.toDataURL(url, (err, url) => {
+    qr.toDataURL(url, (err, dataUrl) => {
       if (err) reject(err);
-      resolve(url);
+      else resolve(dataUrl);
     });
   });
 }
 
-// Embed QR Code in PDF and save to specified output
+// Embed QR Code image in last page of PDF
 async function embedQRCodeInPdf(inputPdfPath, qrCodeDataUrl, outputPdfPath) {
   const pdfBytes = fs.readFileSync(inputPdfPath);
   const pdfDoc = await PDFDocument.load(pdfBytes);
