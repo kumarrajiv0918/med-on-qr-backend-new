@@ -16,7 +16,7 @@ const upload = multer({ storage });
 router.use('/uploads', express.static('uploads'));
 
 // Upload route
-router.post('/upload', authentication, upload.single('file'), async (req, res) => {
+router.post('/upload', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded.' });
@@ -27,19 +27,32 @@ router.post('/upload', authentication, upload.single('file'), async (req, res) =
     const baseName = path.basename(req.file.filename, ext);
     const convertedPdfPath = `uploads/${baseName}_converted.pdf`;
 
+    console.log('Uploaded file:', req.file.originalname);
+    console.log('Detected extension:', ext);
+
     let finalPdfPath = originalPath;
 
     if (ext !== '.pdf') {
-      if (['.doc', '.docx', '.xls', '.ppt', '.pptx'].includes(ext)) {
-        await fileController.convertToPdf(originalPath, convertedPdfPath);
-      } else if (['.jpg', '.jpeg', '.png'].includes(ext)) {
-        await fileController.imageToPdf(originalPath, convertedPdfPath);
-      } else {
+      try {
+        if (['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'].includes(ext)) {
+          console.log(`Attempting Office file conversion for ${ext}`);
+          await fileController.convertToPdf(originalPath, convertedPdfPath);
+        } else if (['.jpg', '.jpeg', '.png'].includes(ext)) {
+          console.log(`Attempting image file conversion for ${ext}`);
+          await fileController.imageToPdf(originalPath, convertedPdfPath);
+        } else {
+          console.warn(`Unsupported file type: ${ext}`);
+          fs.unlinkSync(originalPath);
+          return res.status(400).json({ error: 'Unsupported file type for conversion.' });
+        }
+
+        fs.unlinkSync(originalPath); // remove original
+        finalPdfPath = convertedPdfPath;
+      } catch (conversionError) {
+        console.error('Conversion failed:', conversionError);
         fs.unlinkSync(originalPath);
-        return res.status(400).json({ error: 'Unsupported file type for conversion.' });
+        return res.status(500).json({ error: 'File conversion failed. Make sure LibreOffice is installed and working.' });
       }
-      fs.unlinkSync(originalPath);
-      finalPdfPath = convertedPdfPath;
     }
 
     const modifiedPdfFileName = `modified_${path.basename(finalPdfPath)}`;
@@ -50,7 +63,7 @@ router.post('/upload', authentication, upload.single('file'), async (req, res) =
     await fileController.embedQRCodeInPdf(finalPdfPath, qrCodeDataUrl, modifiedPdfPath);
 
     if (fs.existsSync(finalPdfPath)) {
-      fs.unlinkSync(finalPdfPath);
+      fs.unlinkSync(finalPdfPath); // remove unmodified PDF
     }
 
     res.json({
@@ -65,7 +78,7 @@ router.post('/upload', authentication, upload.single('file'), async (req, res) =
   }
 });
 
-// Fetch all files
+// Fetch all files route
 router.get('/files', authentication, async (req, res) => {
   try {
     fs.readdir('uploads', async (err, files) => {
@@ -86,7 +99,7 @@ router.get('/files', authentication, async (req, res) => {
   }
 });
 
-// Delete file by name
+// Delete file by name route
 router.delete('/deleteByName/:fileName', async (req, res) => {
   const { fileName } = req.params;
   try {
