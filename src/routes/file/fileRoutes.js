@@ -27,26 +27,20 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     const baseName = path.basename(req.file.filename, ext);
     const convertedPdfPath = `uploads/${baseName}_converted.pdf`;
 
-    console.log('Uploaded file:', req.file.originalname);
-    console.log('Detected extension:', ext);
-
     let finalPdfPath = originalPath;
 
     if (ext !== '.pdf') {
       try {
         if (['.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx'].includes(ext)) {
-          console.log(`Attempting Office file conversion for ${ext}`);
           await fileController.convertToPdf(originalPath, convertedPdfPath);
         } else if (['.jpg', '.jpeg', '.png'].includes(ext)) {
-          console.log(`Attempting image file conversion for ${ext}`);
           await fileController.imageToPdf(originalPath, convertedPdfPath);
         } else {
-          console.warn(`Unsupported file type: ${ext}`);
           fs.unlinkSync(originalPath);
           return res.status(400).json({ error: 'Unsupported file type for conversion.' });
         }
 
-        fs.unlinkSync(originalPath); // remove original
+        fs.unlinkSync(originalPath);
         finalPdfPath = convertedPdfPath;
       } catch (conversionError) {
         console.error('Conversion failed:', conversionError);
@@ -63,7 +57,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     await fileController.embedQRCodeInPdf(finalPdfPath, qrCodeDataUrl, modifiedPdfPath);
 
     if (fs.existsSync(finalPdfPath)) {
-      fs.unlinkSync(finalPdfPath); // remove unmodified PDF
+      fs.unlinkSync(finalPdfPath);
     }
 
     res.json({
